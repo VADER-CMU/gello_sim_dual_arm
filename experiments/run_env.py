@@ -59,8 +59,8 @@ def main(args):
     if args.bimanual:
         if args.agent == "gello":
             # dynamixel control box port map (to distinguish left and right gello)
-            right = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBG6A-if00-port0"
-            left = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBEIA-if00-port0"
+            right = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTA2U12T-if00-port0"
+            left = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT88YYGL-if00-port0"
             left_agent = GelloAgent(port=left)
             right_agent = GelloAgent(port=right)
             agent = BimanualAgent(left_agent, right_agent)
@@ -96,12 +96,14 @@ def main(args):
         reset_joints_left = np.deg2rad([0, -90, -90, -90, 90, 0, 0])
         reset_joints_right = np.deg2rad([0, -90, 90, -90, -90, 0, 0])
         reset_joints = np.concatenate([reset_joints_left, reset_joints_right])
+        #print(reset_joints)
         curr_joints = env.get_obs()["joint_positions"]
-        max_delta = (np.abs(curr_joints - reset_joints)).max()
+        #max_delta = (np.abs(curr_joints - reset_joints)).max()
+        max_delta = 0.5 
         steps = min(int(max_delta / 0.01), 100)
 
-        for jnt in np.linspace(curr_joints, reset_joints, steps):
-            env.step(jnt)
+        # for jnt in np.linspace(curr_joints, reset_joints, steps):
+        #     env.step(jnt)
     else:
         if args.agent == "gello":
             gello_port = args.gello_port
@@ -147,17 +149,22 @@ def main(args):
 
     # going to start position
     print("Going to start position")
-    start_pos = agent.act(env.get_obs())
-    obs = env.get_obs()
-    joints = obs["joint_positions"]
+    start_pos = agent.act(env.get_obs()) #corresponds to gello input
+    print(f"Start pos: {start_pos}")
+    obs = env.get_obs() # mujoco input 
+    obs["gripper_position"] = 100*obs["gripper_position"]
+    #print(f"Obs: {obs}")
+    #joints = obs["joint_positions"]
+    joints = start_pos
+   # start_pos = joints
+    #print(f"Joints: {joints}")
 
     abs_deltas = np.abs(start_pos - joints)
     id_max_joint_delta = np.argmax(abs_deltas)
 
-    max_joint_delta = 0.8
+    max_joint_delta = 1.1
     if abs_deltas[id_max_joint_delta] > max_joint_delta:
         id_mask = abs_deltas > max_joint_delta
-        print()
         ids = np.arange(len(id_mask))[id_mask]
         for i, delta, joint, current_j in zip(
             ids,
@@ -187,8 +194,11 @@ def main(args):
         env.step(current_joints + delta)
 
     obs = env.get_obs()
-    joints = obs["joint_positions"]
+    #joints = obs["joint_positions"]
+    joints = start_pos
+    #print(joints)
     action = agent.act(obs)
+    print(f"Action: {action}")
     if (action - joints > 0.5).any():
         print("Action is too big")
 
@@ -219,6 +229,7 @@ def main(args):
             end="",
             flush=True,
         )
+    
         action = agent.act(obs)
         dt = datetime.datetime.now()
         if args.use_save_interface:
@@ -239,6 +250,15 @@ def main(args):
                 save_path = None
             else:
                 raise ValueError(f"Invalid state {state}")
+
+        #action[7] = 1 - action[7]
+        if len(action) == 8:
+            action[7] = 75*action[7] # scale the gripper action for the robot, remove condition for real arm, use only for simulation purposes
+
+        if len(action) == 16: # remove condition for real arm, use only for simulation purposes
+            action[7] = 175*action[7]
+            action[15] = 175*action[15] 
+        print(action)
         obs = env.step(action)
 
 
