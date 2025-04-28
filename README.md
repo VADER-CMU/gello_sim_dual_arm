@@ -16,9 +16,16 @@ You should be able to use GELLO to control the simulated robot!
 
 ## Bimanual teleop in sim -  commands to run the teleoperation
 1. Go to the gello_software directory on 2 terminals.
-2. run the command - python3 experiments/launch_nodes.py --robot sim_xarm_bimanual in one of the terminals.
-3. On the other terminal run the command - python3 experiments/run_env.py --agent=gello --bimanual  .
-4. You will see a mujoco terminal with 2 xarms spawned . You will also be able to control both the XArms using the teleoperation structures, provided they are calibrated correctly.
+2. run the command
+   ```
+   python3 experiments/launch_nodes.py --robot sim_xarm_bimanual
+   ```
+   in one of the terminals.
+3. On the other terminal run the command -
+   ```
+   python3 experiments/run_env.py --agent=gello --bimanual
+   ```
+4. You will see a mujoco terminal with 2 XArms spawned . You will also be able to control both the XArms using the teleoperation structures, provided they are calibrated correctly.
 
 
 # Citation
