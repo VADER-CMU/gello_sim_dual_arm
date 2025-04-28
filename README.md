@@ -11,7 +11,7 @@ cd gello_software
 </p>
 
 
-## Use your own enviroment
+## Use your own environment
 ```
 git submodule init
 git submodule update
