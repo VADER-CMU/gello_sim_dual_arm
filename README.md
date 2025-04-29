@@ -1,5 +1,13 @@
 # GELLO
 
+## Attribution
+
+This repository belongs to Carnegie Mellon University, Masters of Science - Robotic Systems Development (MRSD) Team E - VADER
+
+Team Members: Tom Gao, Abhishek Mathur, Rohit Satishkumar, Kshitij Bhat, Keerthi GV 
+
+First Revision: April 2025
+
 ## Single XArm teleop control in sim - commands to run the teleoperation
 First test your GELLO with a simulated robot to make sure that the joint angles match as expected.
 In one terminal run
